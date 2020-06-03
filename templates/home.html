@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}
+    我的网站|首页
+{% endblock %}
+
+{% block header_extends %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="{% static 'js/echarts.min.js' %}"></script>
+{% endblock %}
+
+{% block nav_home_active %}
+	active
+{% endblock %}
+
+{% block content %}
+    <h3 class="home-content">欢迎访问我的网站</h3>
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <!-- 今天24小时内的热门博客-->
+    <div class="hot-data">
+        <h3>今日热门博客</h3>
+        <ul>
+            {% for hot_date in today_hot_date %}
+                <li><a href="{% url 'blog_details' hot_date.content_object.pk %}">{{ hot_date.content_object.title}}</a>
+                    ({{ hot_date.read_num }})</li>
+            {% empty %}
+                <li>今天暂无热门博客</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="hot-data">
+        <h3>昨日热门博客</h3>
+            <ul>
+                {% for hot_date in yesterday_hot_date %}
+                    <li><a href="{% url 'blog_details' hot_date.content_object.pk %}">{{ hot_date.content_object.title}}</a>
+                        ({{ hot_date.read_num }})</li>
+                {% empty %}
+                    <li>昨天暂无热门博客</li>
+                {% endfor %}
+            </ul>
+    </div>
+    <div class="hot-data">
+        <h3>近七天热门博客</h3>
+        <ul>
+            {% for hot_blog in sevendays_hot_date %}
+                <li><a href="{% url 'blog_details' hot_blog.id %}">{{ hot_blog.title}}</a>
+                    ({{ hot_blog.read_num_sum }})</li>
+            {% empty %}
+                <li>近七天暂无热门博客</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 指定图表的配置项和数据
+        var option = {
+            xAxis: {
+                type: 'category',
+                data: {{ dates|safe }}
+            },
+            yAxis: {
+                type: 'value',
+
+                show: false,
+                splitLine: {
+                    show: true
+                },
+
+            },
+            series: [{
+                name:'阅读量',
+                data: {{ read_nums }},
+                type: 'line',
+                color: ['#333333'],
+                symbolSize:8,
+                label : {
+                    show: true
+                },
+            }],
+            tooltip:[{
+                show: true,
+            }]
+
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+{% endblock %}
